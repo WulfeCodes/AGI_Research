@@ -44,7 +44,6 @@ class TDMPC2(torch.nn.Module):
 		self.vit_processor = AutoImageProcessor.from_pretrained("facebook/dinov2-large")
 
 		self.scale = RunningScale(cfg)
-		self.img_projection_TDMPC2=torch.nn.Linear(1024,608).to(self.device)
 
 		self.cfg.iterations += 2*int(cfg.action_dim >= 20) # Heuristic for large action spaces
 		self.discount = torch.tensor(
@@ -293,7 +292,7 @@ class TDMPC2(torch.nn.Module):
 		outputs = self.vit_model(**inputs)
 		hidden_state = outputs.last_hidden_state
 
-		ob=self.img_projection_TDMPC2(hidden_state)
+		ob=self.model.img_projection_TDMPC2(hidden_state)
 		all_z=ob.mean(dim=1).to(self.cfg.device)
 		all_z = all_z.reshape(self.cfg.horizon+1,self.cfg.batch_size,self.cfg.latent_dim).to(self.device)
 		task=task.to(self.cfg.device)
